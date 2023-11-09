@@ -20,7 +20,7 @@ To set up the Tank Battle Aim Assistant, follow these steps:
 
 1. Clone the repository:
 
-git clone https://github.com/yourusername/tank-battle-aim-assistant.git
+git clone [https://github.com/jamesmcaleer/break-pidgeon.git](https://github.com/jamesmcaleer/break-pidgeon.git)
 
 
 2. Navigate to the project directory:
