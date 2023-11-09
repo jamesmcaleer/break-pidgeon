@@ -149,12 +149,19 @@ class ImageCalculator:
             return {"center": (0, 0), "top_left": (0, 0), "bottom_right": (0, 0)}
 
         # Top left is the point with the smallest x and y value
-        top_left = min(data_points, key=lambda point: (point[0], point[1]))
+        #top_left = min(data_points, key=lambda point: (point[0], point[1]))
         print(self.current_number, data_points)
-        print(top_left)
+        #print(top_left)
+
+        all_x_values = [cords[0] for cords in data_points]
+        all_y_values = [cords[1] for cords in data_points]
+
+        top_left = [min(all_x_values), min(all_y_values)]
+        bottom_right = [max(all_x_values), max(all_y_values)]
+
+
         # Bottom right is the point with the largest x and y value
-        bottom_right = max(data_points, key=lambda point: (point[0], point[1]))
-        print(bottom_right)
+        #print(bottom_right)
         # Center is the average of the x values and the average of the y values
         center_x = sum(point[0] for point in data_points) / len(data_points)
         center_y = sum(point[1] for point in data_points) / len(data_points)
@@ -231,12 +238,13 @@ class ImageCalculator:
 
             return 0, 0
 
-        y1, x1 = self.object_data[self.current_number]["top_left"]
-        y2, x2 = self.object_data[self.current_number]["bottom_right"]
+        x1, y1 = self.object_data[self.current_number]["top_left"]
+        x2, y2 = self.object_data[self.current_number]["bottom_right"]
         middle, middle_x = self.object_data[self.current_number]["center"]
         total_length = x2 - x1
 
         # Get the sequence in the middle row from x1 to x2
+        
         middle_sequence = ''.join(str(board[middle][x]) for x in range(x1, x2))
         print(middle_sequence)
         # Use the function to get the length of zeros
@@ -396,7 +404,7 @@ if __name__ == '__main__':
            1: {"color": gray_castle, "+-": 5, "section_data": {"divide": [2, 5], "section": [2, 3]}},
            2: {"color": red_tank, "+-": 40, "section_data": {"divide": [3, 5], "section": [3, 1]}},
            3: {"color": blue_tank, "+-": 40, "section_data": {"divide": [8, 5], "section": [7, 5]}},
-           4: {"color": wind_speed, "+-": 40, "section_data": {"divide": [10, 3], "section": [2, 2]}}}
+           4: {"color": wind_speed, "+-": 40, "section_data": None}}
 
 
     image_decoder = ImageDecoder(image_path="screenshot_1.png", color_key=key_2, scale_down=scale_down)
