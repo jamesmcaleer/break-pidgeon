@@ -1,4 +1,3 @@
-# test
 import time
 from PIL import Image
 import math
