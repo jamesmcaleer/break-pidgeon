@@ -48,6 +48,7 @@ class ObjectLocator:
     def compute_objects_locations(self):
         self.get_tank_values((self.meaning_key["red_tank"], self.meaning_key["blue_tank"]))
         self.get_wind_speed(self.meaning_key["wind_bar"])
+        self.get_tower_top(self.meaning_key["castle"])
 
     # IMAGE SCRAPING FUNCTIONS------------------------------------
     # finds the center by using the average of all the current_objects_coordinates/cords and then gets the "topleft" and
@@ -168,8 +169,24 @@ class ObjectLocator:
         self.object_data[self.current_number] = self.find_object_coordinates()
         self.wind_speed_coordinates()
 
-    def get_height(self):
-        pass
+    def get_tower_top(self, number, clear_points=True):
+        self.current_number = number
+        self.current_objects_coordinates = [] if clear_points else self.current_objects_coordinates
+
+        y_start, y_end, x_start, x_end = 0, self.height, 0, self.width
+
+        for x in range(x_start, x_end):
+            # This "if" is for improved performance
+            if self.current_number in self.board[x]:
+                for y in range(y_start, y_end):
+                    coordinate = x, y
+                    if self.board[x][y] == self.current_number:
+                        self.current_objects_coordinates.append(coordinate)
+                break
+        print("castle coords", self.current_objects_coordinates)
+        #print(self.board)
+        self.object_data[self.current_number] = {"center": (self.current_objects_coordinates[0][0], (self.current_objects_coordinates[0][1] + self.current_objects_coordinates[-1][1])/2), "top_left": self.current_objects_coordinates[0], "bottom_right": self.current_objects_coordinates[-1]}
+        
 
     def find_below_tower(self):
         # if true need to add height distance to tower
@@ -197,6 +214,7 @@ class ImageDecoder(ObjectLocator):
         self.clear_all()
         self.use_image(image_path)
         self.fill_board()
+        #self.print_board()
         self.use_board(self.current_board)
         self.compute_objects_locations()
         self.commit_board()
@@ -464,7 +482,7 @@ class PigeonTanks(ImageDecoder, ImageCalculator):
         board_number, image_path = data
         print(f"View Board {board_number}")
         board, object_data = self.retrieve_reverent_data(board_number)
-        display_pg_window(board, self.game_key, image_path, horizontal_sections=1, vertical_sections=1,
+        display_pg_window(board, self.game_key, image_path, horizontal_sections=4, vertical_sections=3,
                           object_data=object_data, circle_size=3)
 
     def clear_screen(self):
@@ -476,6 +494,8 @@ class PigeonTanks(ImageDecoder, ImageCalculator):
         self.complete_board(self.image_data[board_number])
         board, object_data = self.retrieve_reverent_data(board_number)
         self.calculate_values(object_data)
+        self.print_data()
+        
 
 # mainly from GPT but its can be used for testing stuff and what not
 def display_pg_window(board, key, image_path, object_data=None, circle_size=5, horizontal_sections=None,
@@ -543,6 +563,7 @@ def display_pg_window(board, key, image_path, object_data=None, circle_size=5, h
         scaled_image = pygame.transform.scale(image, (screen_width, screen_height))
         screen.blit(scaled_image, (0, 0))
         pygame.display.flip()
+        
 
     running = True
     show_image = False  # Variable to toggle between the image and the board
@@ -583,7 +604,7 @@ def time_function(func, *args, **kwargs):
 
 if __name__ == '__main__':
     # this helps scale down the org image, larger num = smaller image... multiply it back to get true pixel positions
-    SCALE_DOWN = 4
+    SCALE_DOWN = 3
 
     # The colors that were searching for
     BLACK_GROUND = (0, 0, 0)  # (255, 255, 255)  #   # this will be where the colors you have chosen to search are not
@@ -596,7 +617,7 @@ if __name__ == '__main__':
     # "section": "divide": [8, 5], "section": [1, 1]
     # game key has been optimised to be most efficient and accurate -- still subjected to change
     GAME_KEY = {0: {"color": BLACK_GROUND, "+-": 0, "section_data": None},
-                1: {"color": GRAY_CASTLE, "+-": 5, "section_data": {"divide": [2, 5], "section": [2, 3]}},
+                1: {"color": GRAY_CASTLE, "+-": 10, "section_data": {"divide": [2, 5], "section": [2, 3]}},
                 2: {"color": RED_TANK, "+-": 40, "section_data": {"divide": [3, 5], "section": [3, 1]}},
                 3: {"color": BLUE_TANK, "+-": 40, "section_data": {"divide": [8, 5], "section": [7, 5]}},
                 4: {"color": WIND_SPEED, "+-": 40, "section_data": {"divide": [10, 3], "section": [2, 2]}}}
@@ -605,4 +626,5 @@ if __name__ == '__main__':
 
     root = tk.Tk()
     app = PigeonTanks(root, game_key=GAME_KEY, meaning_key=MEANING_KEY, scale_down=SCALE_DOWN)
+    
     root.mainloop()
