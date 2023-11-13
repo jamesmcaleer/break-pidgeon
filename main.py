@@ -276,7 +276,7 @@ class ImageDecoder(ObjectLocator):
     # fills the board using the color_key
     def fill_board(self):
         for number, options in self.color_key.items():
-            self.color_filter(number, options["color"], options["+-"], options["section_data"])
+            self.color_filter(round(number), options["color"], options["+-"], options["section_data"])
 
     # fills the board following the set parameters. Adds the corresponding number from the color_key to the
     # current_board to map the collocation of the objects form the image
@@ -603,13 +603,13 @@ def time_function(func, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    # this helps scale down the org image, larger num = smaller image... multiply it back to get true pixel positions
-    SCALE_DOWN = 3
+        # this helps scale down the org image, larger num = smaller image... multiply it back to get true pixel positions
+    SCALE_DOWN = 4
 
     # The colors that were searching for
     BLACK_GROUND = (0, 0, 0)  # (255, 255, 255)  #   # this will be where the colors you have chosen to search are not
-    RED_TANK = (89, 37, 24)
-    BLUE_TANK = (65, 116, 163)
+    RED_TANK = (227, 114, 91)  # (89, 37, 24)
+    BLUE_TANK = (54, 118, 188)  # (65, 116, 163)
     GRAY_CASTLE = (85, 94, 102)
     WIND_SPEED = (63, 77, 115)
 
@@ -617,9 +617,11 @@ if __name__ == '__main__':
     # "section": "divide": [8, 5], "section": [1, 1]
     # game key has been optimised to be most efficient and accurate -- still subjected to change
     GAME_KEY = {0: {"color": BLACK_GROUND, "+-": 0, "section_data": None},
-                1: {"color": GRAY_CASTLE, "+-": 10, "section_data": {"divide": [2, 5], "section": [2, 3]}},
-                2: {"color": RED_TANK, "+-": 40, "section_data": {"divide": [3, 5], "section": [3, 1]}},
-                3: {"color": BLUE_TANK, "+-": 40, "section_data": {"divide": [8, 5], "section": [7, 5]}},
+                1: {"color": GRAY_CASTLE, "+-": 5, "section_data": {"divide": [2, 5], "section": [2, 3]}},
+                2: {"color": RED_TANK, "+-": 40, "section_data": {"divide": [7, 2], "section": [5, 1]}},
+                2.1: {"color": RED_TANK, "+-": 40, "section_data": {"divide": [7, 2], "section": [6, 1]}},
+                3: {"color": BLUE_TANK, "+-": 40, "section_data": {"divide": [7, 2], "section": [5, 2]}},
+                3.1: {"color": BLUE_TANK, "+-": 40, "section_data": {"divide": [7, 2], "section": [6, 2]}},
                 4: {"color": WIND_SPEED, "+-": 40, "section_data": {"divide": [10, 3], "section": [2, 2]}}}
 
     MEANING_KEY = {"castle": 1, "red_tank": 2, "blue_tank": 3, "wind_bar": 4}
