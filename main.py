@@ -160,7 +160,7 @@ class ObjectLocator:
 
         # gets the ratio of 0's/wind arrows to the length of one side of the bar and puts that ration on a scale from
         # 1-10 and then multiplies that by -1 or 1 for direction
-        self.object_data["wind_speed"] = round((length_of_zeros_in_middle / (total_length / 2) * 10)-.6, 1) * sign
+        self.object_data["wind_speed"] = round((length_of_zeros_in_middle / (total_length / 2) * 10) - .6, 1) * sign
 
     # combines all funcs to add wind speed to object_data as a int
     def get_wind_speed(self, number):
@@ -171,22 +171,29 @@ class ObjectLocator:
 
     def get_tower_top(self, number, clear_points=True):
         self.current_number = number
-        self.current_objects_coordinates = [] if clear_points else self.current_objects_coordinates
+        self.get_data_points()
+        self.object_data[self.current_number] = self.find_object_coordinates()
 
-        y_start, y_end, x_start, x_end = 0, self.height, 0, self.width
+        # self.current_objects_coordinates = [] if clear_points else self.current_objects_coordinates
+        #
+        # y_start, y_end, x_start, x_end = 0, self.height, 0, self.width
+        #
+        # for x in range(x_start, x_end):
+        #     # This "if" is for improved performance
+        #     if self.current_number in self.board[x]:
+        #         for y in range(y_start, y_end):
+        #             coordinate = x, y
+        #             if self.board[x][y] == self.current_number:
+        #                 self.current_objects_coordinates.append(coordinate)
+        #         break
+        # print("castle cords", self.current_objects_coordinates)
+        # print(self.board)
+        # self.object_data[self.current_number] = {"center": (self.current_objects_coordinates[0][0], (
+        #             self.current_objects_coordinates[0][1] + self.current_objects_coordinates[-1][1]) / 2),
+        #                                          "top_left": self.current_objects_coordinates[0],
+        #                                          "bottom_right": self.current_objects_coordinates[-1]}
 
-        for x in range(x_start, x_end):
-            # This "if" is for improved performance
-            if self.current_number in self.board[x]:
-                for y in range(y_start, y_end):
-                    coordinate = x, y
-                    if self.board[x][y] == self.current_number:
-                        self.current_objects_coordinates.append(coordinate)
-                break
-        print("castle coords", self.current_objects_coordinates)
-        #print(self.board)
-        self.object_data[self.current_number] = {"center": (self.current_objects_coordinates[0][0], (self.current_objects_coordinates[0][1] + self.current_objects_coordinates[-1][1])/2), "top_left": self.current_objects_coordinates[0], "bottom_right": self.current_objects_coordinates[-1]}
-        
+
 
     def find_below_tower(self):
         # if true need to add height distance to tower
@@ -214,7 +221,7 @@ class ImageDecoder(ObjectLocator):
         self.clear_all()
         self.use_image(image_path)
         self.fill_board()
-        #self.print_board()
+        # self.print_board()
         self.use_board(self.current_board)
         self.compute_objects_locations()
         self.commit_board()
@@ -328,7 +335,7 @@ class ImageDecoder(ObjectLocator):
 # used for all physics calculations
 class ImageCalculator:
     def __init__(self, scale_down, game_key, meaning_key):
-        self.scale_down = scale_down # multiply cords by this if you want to get the original pixel value
+        self.scale_down = scale_down  # multiply cords by this if you want to get the original pixel value
 
         # calculated_values is where the calculated variables should be put
         self.calculated_values = {"power": 0, "angle": 0}
@@ -359,6 +366,7 @@ class ImageCalculator:
         print("wind_bar", self.object_data[self.meaning_key["wind_bar"]])
         print("tank distance", self.object_data["tank_distance"])
         print("wind speed", self.object_data["wind_speed"])
+        print("castle", self.object_data[self.meaning_key["castle"]])
 
 
     # Calculation functions
@@ -475,7 +483,7 @@ class PigeonTanks(ImageDecoder, ImageCalculator):
     def retrieve_reverent_data(self, board_number):
         board_info = self.retrieve_board(board_number)
         if isinstance(board_info, dict):
-            return board_info["board"],  board_info["object_data"]
+            return board_info["board"], board_info["object_data"]
         return False
 
     def view_board(self, data):
@@ -495,7 +503,7 @@ class PigeonTanks(ImageDecoder, ImageCalculator):
         board, object_data = self.retrieve_reverent_data(board_number)
         self.calculate_values(object_data)
         self.print_data()
-        
+
 
 # mainly from GPT but its can be used for testing stuff and what not
 def display_pg_window(board, key, image_path, object_data=None, circle_size=5, horizontal_sections=None,
@@ -525,6 +533,12 @@ def display_pg_window(board, key, image_path, object_data=None, circle_size=5, h
             for key, value in object_data.items():
                 try:
                     y, x = value['center']
+                    pygame.draw.circle(screen, (255, 255, 255), (x, y), circle_size)
+
+                    y, x = value['top_left']
+                    pygame.draw.circle(screen, (255, 255, 255), (x, y), circle_size)
+
+                    y, x = value['bottom_right']
                     pygame.draw.circle(screen, (255, 255, 255), (x, y), circle_size)
                 except:
                     pass
@@ -563,7 +577,6 @@ def display_pg_window(board, key, image_path, object_data=None, circle_size=5, h
         scaled_image = pygame.transform.scale(image, (screen_width, screen_height))
         screen.blit(scaled_image, (0, 0))
         pygame.display.flip()
-        
 
     running = True
     show_image = False  # Variable to toggle between the image and the board
@@ -603,7 +616,7 @@ def time_function(func, *args, **kwargs):
 
 
 if __name__ == '__main__':
-        # this helps scale down the org image, larger num = smaller image... multiply it back to get true pixel positions
+    # this helps scale down the org image, larger num = smaller image... multiply it back to get true pixel positions
     SCALE_DOWN = 4
 
     # The colors that were searching for
@@ -628,5 +641,5 @@ if __name__ == '__main__':
 
     root = tk.Tk()
     app = PigeonTanks(root, game_key=GAME_KEY, meaning_key=MEANING_KEY, scale_down=SCALE_DOWN)
-    
+
     root.mainloop()
